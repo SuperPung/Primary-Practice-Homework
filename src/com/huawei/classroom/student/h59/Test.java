@@ -31,6 +31,10 @@ public class Test {
 		target.add("OH-");
 		target.add("H2O");
 		target.add("NaCl");
+
+		target.add("H2");
+		target.add("O2");
+
 		System.out.println(result);
 		if(target.equals(result)) {
 			System.out.println("pass!");

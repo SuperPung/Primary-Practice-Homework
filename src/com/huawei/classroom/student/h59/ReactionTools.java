@@ -15,19 +15,18 @@ public class ReactionTools {
 	 * @return 最后体系中存在的全部物质
 	 */
 	public Set<String> findAllComponents(String reactionFile,Set<String> initComponents){
-		Map<Set<String>, Set<String>> reactions = readLines(reactionFile);
+		List<Reaction> reactions = readLines(reactionFile);
 		Set<String> result = new HashSet<>(initComponents);
-		Set<Map.Entry<Set<String>, Set<String>>> reactionsEntrySet = reactions.entrySet();
 		int newAddCount = initComponents.size();
 		while (newAddCount != 0) {
 			newAddCount = 0;
-			for (Map.Entry<Set<String>, Set<String>> entry : reactionsEntrySet) {
+			for (Reaction reaction : reactions) {
 				// contain or not contain, that is a question
-				if (result.containsAll(entry.getKey()) && !result.containsAll(entry.getValue())) {
-					result.addAll(entry.getValue());
+				if (result.containsAll(reaction.getReactant()) && !result.containsAll(reaction.getProduct())) {
+					result.addAll(reaction.getProduct());
 					newAddCount++;
-				} else if (result.containsAll(entry.getValue()) && !result.containsAll(entry.getKey())) {
-					result.addAll(entry.getKey());
+				} else if (result.containsAll(reaction.getProduct()) && !result.containsAll(reaction.getReactant())) {
+					result.addAll(reaction.getReactant());
 					newAddCount++;
 				}
 			}
@@ -35,10 +34,10 @@ public class ReactionTools {
 		return result;
 	}
 
-	public Map<Set<String>, Set<String>> readLines(String filename) {
+	public List<Reaction> readLines(String filename) {
 		String line;
 		Reader reader = null;
-		Map<Set<String>, Set<String>> result = new HashMap<>();
+		List<Reaction> result = new ArrayList<>();
 		try {
 			reader = new FileReader(filename);
 		} catch (FileNotFoundException e) {
@@ -71,7 +70,7 @@ public class ReactionTools {
 				for (String s : rights) {
 					rightSet.add(s.trim());
 				}
-				result.put(leftSet, rightSet);
+				result.add(new Reaction(leftSet, rightSet));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
