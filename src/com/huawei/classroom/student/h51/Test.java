@@ -19,7 +19,7 @@ public class Test {
 		HongBao home = new HongBao();
 		//返回每个人应得的的钱数，分红包规则参考微信的随机红包
 		//此题目结果不要求精确匹配
-		double result[] = home.getHongbao(100, 3);
+		double result[] = home.getHongbao(0.03, 3);
 		for (double v : result) {
 			System.out.println(v);
 		}

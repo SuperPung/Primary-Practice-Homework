@@ -35,7 +35,9 @@ public class HongBao {
 
 	public double getOneRedPackage(double remainMoney, int remainCount) {
 		double min = 0.01;
-		double max = remainMoney / remainCount * 2;
+		double max1 = remainMoney / remainCount * 2;
+		double max2 = remainMoney - (remainCount - 1) * 0.01;
+		double max = Math.min(max1, max2);
 		double money;
 		if (remainCount == 1) {
 			money = remainMoney;
