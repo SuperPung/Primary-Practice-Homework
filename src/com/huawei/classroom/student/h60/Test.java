@@ -22,7 +22,7 @@ public class Test {
 		// user.txt中存放了所有用户的用户名和口令 用\t分割
 		String ip = "127.0.0.1";
 		int port = 9090;
-		String passwordFile = "根据情况修改这个地方/user.txt";
+		String passwordFile = "/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h60/user.txt";
 		ChatServer server;
 		try {
 			server = new ChatServer(port, passwordFile);
