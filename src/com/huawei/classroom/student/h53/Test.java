@@ -28,7 +28,7 @@ public class Test {
 		if(Math.abs( 1-count*1.0/target)<0.2) {
 			System.out.println("pass ");
 		}
-		count = home.getLivingRabbit(1, 1110);
+		count = home.getLivingRabbit(3, 1700);
 		System.out.println(count);
 		 
 	}
