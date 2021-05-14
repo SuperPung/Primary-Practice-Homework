@@ -21,7 +21,7 @@ public class Test {
 		// 在ChatServer,ChatClient中增加适当代码，并增加适当的类，完成一个简单的聊天室
 		// user.txt中存放了所有用户的用户名和口令 用\t分割
 		String ip = "127.0.0.1";
-		int port = 9090;
+		int port = 9099;
 		String passwordFile = "/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h60/user.txt";
 		ChatServer server;
 		try {
@@ -32,6 +32,8 @@ public class Test {
 			ChatClient zhang = new ChatClient(ip, port);
 			ChatClient li = new ChatClient(ip, port);
 			ChatClient wang = new ChatClient(ip, port);
+
+//			System.out.println("please log in");
 
 			// 2 客户1 登录成功
 			if (zhang.login("zhang", "123")) {
@@ -50,6 +52,11 @@ public class Test {
 			String str1 = "I am zhang";
 			zhang.speak(str1);
 			// 3 wang没有登录成功，所以读到的是null
+//			System.out.println("after zhang speak " + str1 + ":");
+//			System.out.println("zhang read: " + zhang.read());
+//			System.out.println("li read: " + li.read());
+//			System.out.println("wang read: " + wang.read());
+
 			if (str1.equals(zhang.read()) && str1.equals(li.read()) && (null == wang.read())) {
 				System.out.println("pass4");
 			}
@@ -58,8 +65,14 @@ public class Test {
 			str1 = "I am li";
 			li.speak(str1);
 			// 4 zhang logout了
+
+//			System.out.println("after li speak " + str1 + ":");
+//			System.out.println("zhang read: " + zhang.read());
+//			System.out.println("li read: " + li.read());
+//			System.out.println("wang read: " + wang.read());
+
 			if (str1.equals(li.read()) && (null == zhang.read()) && (null == wang.read())) {
-				System.out.println("pass4");
+				System.out.println("pass5");
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
