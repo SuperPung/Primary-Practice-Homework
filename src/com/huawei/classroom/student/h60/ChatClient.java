@@ -5,18 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author super
  */
 public class ChatClient {
-	private String userName, password;
 	private boolean isLoggedIn;
-	private Socket client = null;
-	private PrintWriter out = null;
-	private BufferedReader in = null;
+	private final PrintWriter out;
+	private final BufferedReader in;
 
 	 /**
 	  * 根据情况适当抛出异常 
@@ -24,7 +20,7 @@ public class ChatClient {
 	  * @param port
 	  */
 	public ChatClient (String ip, int port) throws IOException {
-		client = new Socket(ip, port);
+		Socket client = new Socket(ip, port);
 		// 获得输出流
 		out = new java.io.PrintWriter(client.getOutputStream());
 		// 获得输入流
@@ -38,8 +34,6 @@ public class ChatClient {
 	 * @return
 	 */
 	public boolean login(String userName,String password) throws IOException {
-		this.userName = userName;
-		this.password = password;
 		String passwd = userName + "\t" + password;
 		String get;
 		// \r\n is necessary

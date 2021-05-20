@@ -9,8 +9,8 @@ import java.util.*;
  * @author super
  */
 public class ChatServer extends Thread {
-	private ServerSocket server = null;
-	private Map<String, String> passwd = new HashMap<>();
+	private final ServerSocket server;
+	private final Map<String, String> passwd;
 	public static List<Socket> clients = new ArrayList<>();
 	/**
 	 * 初始化 ， 根据情况适当抛出异常
@@ -39,7 +39,6 @@ public class ChatServer extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-//			System.out.println("client " + socket.getInetAddress() + " connect ok!");
 			clients.add(socket);
 			new ServerThread(socket, passwd).start();
 		}

@@ -60,7 +60,7 @@ public class ServerThread extends Thread {
      * @param passwdStr username + \t + password
      * @return "1" or "0"
      */
-    private String pass (String passwdStr) {
+    private String pass(String passwdStr) {
         String[] userPasswd = passwdStr.split("\t");
         if (userPasswd.length != 2) {
             return "0";
