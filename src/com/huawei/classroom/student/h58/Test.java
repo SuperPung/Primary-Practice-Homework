@@ -16,7 +16,7 @@ public class Test {
 		 * 1个微信ID 10分钟内 最多只能投5票 多余的票无效;其中微信ID不固定，候选人姓名不固定 测试的时候要求10万行记录处理时间不超过3秒
 		 */
 		Map<String, Integer> map = vote.calcRecording(
-				"/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h58/vote_detail.txt");
+				"/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h58/vote_detail2.txt");
 				//"xxxx/vote_detail.txt");
 		
 		System.out.println(map);
