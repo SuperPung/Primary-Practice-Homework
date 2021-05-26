@@ -9,26 +9,30 @@ import java.util.Objects;
 public class Citizen implements Serializable {
     private final int id;
     private Status status;
+
     private final Param param;
+
+    private Family family;
+    private Company company;
     private int latentPeriodDays;
-    private boolean isVaccinated;
-    private boolean isImmune;
+    private boolean vaccinated;
+    private boolean immune;
 
     public Citizen(Param param, int id) {
         this.param = param;
         this.id = id;
         status = Status.healthy;
-        isVaccinated = false;
-        isImmune = false;
-        latentPeriodDays = 0;
+        vaccinated = false;
+        immune = false;
+        latentPeriodDays = -1;
     }
 
     public void vaccinated() {
-        this.isVaccinated = true;
+        this.vaccinated = true;
     }
 
     public boolean isVaccinated() {
-        return isVaccinated;
+        return vaccinated;
     }
 
     public void spendOneLatentDay() {
@@ -68,7 +72,7 @@ public class Citizen implements Serializable {
     }
 
     public void infected() {
-        if (status == Status.healthy && !isImmune) {
+        if (status == Status.healthy && !immune) {
             this.status = Status.latent;
             latentPeriodDays = 0;
         }
@@ -83,7 +87,7 @@ public class Citizen implements Serializable {
     public void cured() {
         if (status == Status.patientAtHome || status == Status.patientInHospital) {
             status = Status.cured;
-            isImmune = true;
+            immune = true;
         }
     }
 
@@ -114,5 +118,21 @@ public class Citizen implements Serializable {
         }
         Citizen citizen = (Citizen) o;
         return id == citizen.id && Objects.equals(param, citizen.param);
+    }
+
+    public Family getFamily() {
+        return family;
+    }
+
+    public void setFamily(Family family) {
+        this.family = family;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }
