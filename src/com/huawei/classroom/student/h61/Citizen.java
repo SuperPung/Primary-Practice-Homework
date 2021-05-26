@@ -12,12 +12,14 @@ public class Citizen implements Serializable {
     private final Param param;
     private int latentPeriodDays;
     private boolean isVaccinated;
+    private boolean isImmune;
 
     public Citizen(Param param, int id) {
         this.param = param;
         this.id = id;
         status = Status.healthy;
         isVaccinated = false;
+        isImmune = false;
         latentPeriodDays = 0;
     }
 
@@ -66,7 +68,7 @@ public class Citizen implements Serializable {
     }
 
     public void infected() {
-        if (status == Status.healthy) {
+        if (status == Status.healthy && !isImmune) {
             this.status = Status.latent;
             latentPeriodDays = 0;
         }
@@ -74,31 +76,26 @@ public class Citizen implements Serializable {
 
     public void sick() {
         if (status == Status.latent) {
-            status = Status.patient;
+            status = Status.patientAtHome;
         }
     }
 
     public void cured() {
-        if (status == Status.patient || status == Status.patientAtHome || status == Status.patientInHospital) {
+        if (status == Status.patientAtHome || status == Status.patientInHospital) {
             status = Status.cured;
+            isImmune = true;
         }
     }
 
     public void dead() {
-        if (status == Status.patient || status == Status.patientAtHome || status == Status.patientInHospital) {
+        if (status == Status.patientAtHome || status == Status.patientInHospital) {
             status = Status.dead;
         }
     }
 
     public void hospitalized() {
-        if (status == Status.patient) {
+        if (status == Status.patientAtHome) {
             status = Status.patientInHospital;
-        }
-    }
-
-    public void waitAtHome() {
-        if (status == Status.patient) {
-            status = Status.patientAtHome;
         }
     }
 

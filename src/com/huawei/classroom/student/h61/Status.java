@@ -16,7 +16,6 @@ public enum Status {
     /**
      * 患病
      */
-    patient,
     patientInHospital,
     patientAtHome,
     /**
