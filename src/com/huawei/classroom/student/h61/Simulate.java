@@ -8,172 +8,109 @@ import java.util.*;
 public class Simulate {
     private Param param;
     private final List<Citizen> citizens = new ArrayList<>();
-    private final Set<Integer> vaccinations = new HashSet<>();
-    private final List<Integer> companies = new ArrayList<>();
-    private final Set<Citizen> hospital = new HashSet<>();
-    private final Queue<Citizen> wait4HospitalPatients = new LinkedList<>();
-    private final List<Citizen> latents = new ArrayList<>();
-    private final List<Citizen> deaths = new ArrayList<>();
-    private final List<Citizen> cured = new ArrayList<>();
-    private final List<Citizen> patientsAtHome = new ArrayList<>();
-    private final List<Citizen> patientsInHospital = new ArrayList<>();
+    private final List<Family> families = new ArrayList<>();
+    private final List<Company> companies = new ArrayList<>();
+    private Hospital hospital;
+    private final SimResult simResult = new SimResult();
 
     public SimResult sim(Param param, int days) {
         this.param = param;
-        SimResult result = new SimResult();
-        setCompanies();
-        setCitizens();
-        setVaccinations();
+        hospital = new Hospital(param.getHospitalSize());
+        init();
+
         for (int i = 0; i < days; i++) {
             oneDayPass();
         }
-        result.setLatents(latents.size());
-        result.setPatients(patientsAtHome.size() + patientsInHospital.size());
-        result.setCured(cured.size());
-        result.setDeaths(deaths.size());
-        return result;
+
+        count();
+        return simResult;
     }
 
     private void oneDayPass() {
-        for (Citizen citizen: latents) {
-            citizen.spendOneLatentDay();
-            if (citizen.getStatus() == Status.patientAtHome) {
-                latents.remove(citizen);
-                patientsAtHome.add(citizen);
-            } else {
-                infectCompany(citizen);
-                infectFamily(citizen);
-            }
+        for (Family family: families) {
+            family.resetInfectionSource();
         }
-        for (Citizen citizen: patientsAtHome) {
-            citizen.spendOnePatientHomeDay();
-            if (hospital.size() < param.getHospitalSize()) {
-                hospitalAdmits(citizen);
-            } else {
-                wait4HospitalPatients.add(citizen);
-            }
-            if (citizen.getStatus() == Status.dead || citizen.getStatus() == Status.cured) {
-                patientsAtHome.remove(citizen);
-            }
-            if (citizen.getStatus() == Status.cured) {
-                cured.add(citizen);
-            }
-            if (citizen.getStatus() == Status.dead) {
-                deaths.add(citizen);
-            }
+        for (Company company: companies) {
+            company.resetInfectionSource();
         }
-        for (Citizen citizen: patientsInHospital) {
-            citizen.spendOnePatientHospitalDay();
-            if (citizen.getStatus() == Status.dead || citizen.getStatus() == Status.cured) {
-                patientsInHospital.remove(citizen);
-                hospital.remove(citizen);
-            }
-            if (citizen.getStatus() == Status.cured) {
-                cured.add(citizen);
-            }
-            if (citizen.getStatus() == Status.dead) {
-                deaths.add(citizen);
-            }
+        for (Citizen citizen: citizens) {
+            citizen.spendOneDay(this);
         }
-        for (Citizen citizen: cured) {
-            if (hospital.contains(citizen)) {
-                hospital.remove(citizen);
-                Citizen new2Hospital = wait4HospitalPatients.poll();
-                if (new2Hospital != null) {
-                    hospitalAdmits(new2Hospital);
-                }
-            }
-        }
+        hospital.refresh();
     }
 
-    private void setCitizens() {
-        for (Integer id : param.getInitPatients()) {
-            Citizen citizen = new Citizen(param, id);
-            citizen.infected();
-            if (vaccinations.contains(id)) {
+    private void init() {
+        initFamilies();
+        initCitizens();
+        initCompanies();
+        initPatients();
+    }
+
+    private void initCitizens() {
+        for (int i = 0; i < param.getCityPopulation(); i++) {
+            Citizen citizen = new Citizen(param, i);
+            if (Util.getOrNotWithProbability(param.getImmuRate())) {
                 citizen.vaccinated();
             }
-            latents.add(citizen);
+            citizens.add(citizen);
+            families.get(i / param.getFamilySize()).addCitizen(citizen);
         }
     }
 
-    private void setCompanies() {
+    private void initPatients() {
+        List<Integer> initPatientsIndexes = param.getInitPatients();
+        for (int index : initPatientsIndexes) {
+            citizens.get(index).infected();
+        }
+    }
+
+    private void initFamilies() {
+        int familiesCount = param.getCityPopulation() / param.getFamilySize();
+        for (int i = 0; i < familiesCount; i++) {
+            families.add(new Family(i, param.getFamilySize(), param.getSpreadRateFamily()));
+        }
+    }
+
+    private void initCompanies() {
+        int companiesCount = param.getCityPopulation() / param.getCompanySize();
+        for (int i = 0; i < companiesCount; i++) {
+            companies.add(new Company(i, param.getCompanySize(), param.getSpreadRateCompany()));
+        }
+        List<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < param.getCityPopulation(); i++) {
-//            int id = (int) (Math.random() * param.getCityPopulation());
-//            if (companies.contains(id)) {
-//                i--;
-//            } else {
-//                companies.add(id);
-//            }
-            companies.add(i);
+            indexes.add(i);
         }
-        Collections.shuffle(companies);
+        Collections.shuffle(indexes);
+        for (int i = 0; i < param.getCityPopulation(); i++) {
+            int citizenIndex = indexes.get(i);
+            int companyIndex = i / param.getCompanySize();
+            companies.get(companyIndex).addCitizen(citizens.get(citizenIndex));
+        }
     }
 
-    private List<Integer> getFamilyMembers(int id) {
-        int size = param.getFamilySize();
-        List<Integer> members = new ArrayList<>();
-        int first = id / size * size;
-        for (int i = 0; i < size; i++) {
-            members.add(first + i);
-        }
-        return members;
-    }
-
-    private void infectFamily(Citizen citizen) {
-        List<Integer> familyMembers = getFamilyMembers(citizen.getId());
-        double rate = param.getSpreadRateFamily();
-        if (citizen.isVaccinated()) {
-            rate = param.getSpreadRateFamily() * (1 - param.getImmuEffect());
-        }
-        for (int k = 0; k < param.getFamilySize(); k++) {
-            Citizen family = new Citizen(param, familyMembers.get(k));
-            if (family.getStatus() == Status.healthy) {
-                if (Math.random() <= rate) {
-                    family.infected();
-                }
+    private void count() {
+        int deaths = 0;
+        int cured = 0;
+        int patientsAtHome = 0;
+        int patientsInHospital = 0;
+        int latents = 0;
+        for (Citizen citizen: citizens) {
+            switch (citizen.getStatus()) {
+                case dead:deaths++;break;
+                case cured:cured++;break;
+                case latent:latents++;break;
+                case patientAtHome:patientsAtHome++;break;
+                case patientInHospital:patientsInHospital++;break;
+                default:
             }
         }
+        simResult.setCured(cured);
+        simResult.setDeaths(deaths);
+        simResult.setLatents(latents);
+        simResult.setPatients(patientsAtHome + patientsInHospital);
     }
 
-    private List<Integer> getCompanyMembers(int id) {
-        int size = param.getCompanySize();
-        List<Integer> members = new ArrayList<>();
-        int num = companies.indexOf(id);
-        int first = num / size * size;
-        for (int i = 0; i < size; i++) {
-            members.add(companies.get(first + i));
-        }
-        return members;
-    }
-
-    private void infectCompany(Citizen citizen) {
-        List<Integer> companyMembers = getCompanyMembers(citizen.getId());
-        double rate = param.getSpreadRateCompany();
-        if (citizen.isVaccinated()) {
-            rate = param.getSpreadRateCompany() * (1 - param.getImmuEffect());
-        }
-        for (int k = 0; k < param.getCompanySize(); k++) {
-            Citizen coworker = new Citizen(param, companyMembers.get(k));
-            if (coworker.getStatus() == Status.healthy) {
-                if (Math.random() <= rate) {
-                    coworker.infected();
-                    // home at night
-                    infectFamily(coworker);
-                }
-            }
-        }
-    }
-
-    private void setVaccinations() {
-        for (int i = 0; i < param.getCityPopulation() * param.getImmuRate(); i++) {
-            int vaccinatedId = (int)(Math.random() % param.getCityPopulation());
-            vaccinations.add(vaccinatedId);
-        }
-    }
-
-    private void hospitalAdmits(Citizen citizen) {
-        hospital.add(citizen);
-        citizen.hospitalized();
+    public Hospital getHospital() {
+        return hospital;
     }
 }
