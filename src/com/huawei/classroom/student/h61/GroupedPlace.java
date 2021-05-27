@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author super
  */
-public class GroupedPlace {
+public abstract class GroupedPlace {
     private int id;
     private int size;
     private double spreadRate;
@@ -23,4 +23,25 @@ public class GroupedPlace {
     public void addCitizen(Citizen citizen) {
         citizens.add(citizen);
     }
+
+    public boolean isContainsInfectionSource() {
+        return containsInfectionSource;
+    }
+
+    public void resetInfectionSource() {
+        containsInfectionSource = false;
+        for (Citizen citizen : citizens) {
+            if (checkInfection(citizen)) {
+                containsInfectionSource = true;
+                break;
+            }
+        }
+    }
+
+    /**
+     * 检查一个人是否患病
+     * @param citizen 市民
+     * @return 是/否
+     */
+    public abstract boolean checkInfection(Citizen citizen);
 }
