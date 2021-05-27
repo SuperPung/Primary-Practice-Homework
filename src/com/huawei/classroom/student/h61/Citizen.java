@@ -9,13 +9,26 @@ import java.util.Objects;
 public class Citizen implements Serializable {
     private final int id;
     private Status status;
-
     private final Param param;
-
+    /**
+     * 所处家庭
+     */
     private Family family;
+    /**
+     * 所处公司
+     */
     private Company company;
+    /**
+     * 处于潜伏期的天数
+     */
     private int latentPeriodDays;
+    /**
+     * 是否注射疫苗
+     */
     private boolean vaccinated;
+    /**
+     * 是否免疫
+     */
     private boolean immune;
 
     public Citizen(Param param, int id) {
@@ -28,43 +41,43 @@ public class Citizen implements Serializable {
     }
 
     public void vaccinated() {
-        this.vaccinated = true;
+        vaccinated = true;
     }
 
-    public boolean isVaccinated() {
-        return vaccinated;
-    }
-
-    public void spendOneLatentDay() {
+    public void spendOneDay(Simulate simulate) {
+        if (status == Status.healthy) {
+            double effect = 0;
+            if (vaccinated) {
+                effect = param.getImmuEffect();
+            }
+            if (family.isContainsInfectionSource()) {
+                checkInfected(param.getSpreadRateFamily() * (1 - effect));
+            }
+            if (company.isContainsInfectionSource()) {
+                checkInfected(param.getSpreadRateCompany() * (1 - effect));
+            }
+        }
         if (status == Status.latent) {
             latentPeriodDays++;
             if (latentPeriodDays > param.getLatentPeriod()) {
                 sick();
+                simulate.getHospital().addPatient(this);
             }
         }
-    }
-
-    public void spendOnePatientHomeDay() {
         if (status == Status.patientAtHome) {
-            if (Math.random() <= param.getHealingRateHome()) {
-                cured();
-            } else if (Math.random() <= param.getDeathRateHome()) {
+            if (Util.getOrNotWithProbability(param.getDeathRateHome())) {
                 dead();
+            } else if (Util.getOrNotWithProbability(param.getHealingRateHome())) {
+                cured();
             }
         }
-    }
-    public void spendOnePatientHospitalDay() {
          if (status == Status.patientInHospital) {
-            if (Math.random() <= param.getHealingRateHospital()) {
-                cured();
-            } else if (Math.random() <= param.getDeathRateHospital()) {
-                dead();
-            }
+             if (Util.getOrNotWithProbability(param.getDeathRateHospital())) {
+                 dead();
+             } else if (Util.getOrNotWithProbability(param.getHealingRateHospital())) {
+                 cured();
+             }
         }
-    }
-
-    public int getId() {
-        return id;
     }
 
     public Status getStatus() {
@@ -103,6 +116,18 @@ public class Citizen implements Serializable {
         }
     }
 
+    /**
+     * 在一定的传染率下，检查一个人是否被感染
+     * @param spreadRate 传染率
+     */
+    public void checkInfected(double spreadRate) {
+        if (status == Status.healthy) {
+            if (Util.getOrNotWithProbability(spreadRate)) {
+                infected();
+            }
+        }
+    }
+
     @Override
     public int hashCode() {
         return id;
@@ -120,16 +145,8 @@ public class Citizen implements Serializable {
         return id == citizen.id && Objects.equals(param, citizen.param);
     }
 
-    public Family getFamily() {
-        return family;
-    }
-
     public void setFamily(Family family) {
         this.family = family;
-    }
-
-    public Company getCompany() {
-        return company;
     }
 
     public void setCompany(Company company) {
