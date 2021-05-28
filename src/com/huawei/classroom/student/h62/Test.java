@@ -12,14 +12,14 @@ public class Test {
 			// 构造一个能够用户socket访问和控制远程文件的项目
 			// MyDaemon 服务器端
 			// 服务器端启动的时候，配置信息存在MyDeamonConfigVo 中
-			String remoteHome = "D:/course/course/exam/src/main/java/com/huawei/classroom/student/h62/test/";
+			String remoteHome = "/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h62/test";
 			MyDeamonConfigVo config = new MyDeamonConfigVo();
 			// 根目录在什么地方
 			config.setRoot(remoteHome);
 			// 监听端口号
 			config.setPort(9999);
 			// 存放了用户名 口令 的认证数据文件
-			config.setPasswordFile("D:/course/course/exam/src/main/java/com/huawei/classroom/student/h62/my_user.txt");
+			config.setPasswordFile("/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h62/my_user.txt");
 			// 构造我的监听类
 			MyDaemon deamon = new MyDaemon(config);
 			// 启动
