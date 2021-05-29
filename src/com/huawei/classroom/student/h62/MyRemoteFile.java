@@ -1,42 +1,52 @@
 package com.huawei.classroom.student.h62;
 
+import java.io.IOException;
+
 /**
  * @author super
  */
 public class MyRemoteFile {
-    public MyRemoteFile(MyHost host, String str) {
+    private final MyHost host;
+    private final String path;
 
+    public MyRemoteFile(MyHost host, String path) throws IOException {
+        host.login();
+        if (!host.isValid()) {
+            throw new IOException("host login failed!");
+        }
+        this.host = host;
+        this.path = path;
     }
 
-    public MyRemoteFile[] dirByNameAsc() {
-        return null;
+    public MyRemoteFile[] dirByNameAsc() throws IOException {
+        return host.getDirByNameAsc(path);
     }
 
-    public boolean isDirectory() {
-        return false;
+    public boolean isDirectory() throws IOException {
+        return host.getType(path) == 0;
     }
 
-    public boolean isFile() {
-        return false;
+    public boolean isFile() throws IOException {
+        return host.getType(path) == 1;
     }
 
     public String getPathFileName() {
-        return null;
+        return path;
     }
 
     public void writeByBytes(byte[] bytes) {
-
+        host.writeByBytes(path, bytes);
     }
 
     public int length() {
-        return 0;
+        return host.getLength(path);
     }
 
     public void delete() {
-
+        host.delete(path);
     }
 
     public boolean exists() {
-        return false;
+        return host.isExist(path);
     }
 }
