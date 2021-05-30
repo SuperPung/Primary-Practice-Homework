@@ -62,7 +62,7 @@ public class MyHost {
         valid = "success".equals(in.readLine());
     }
 
-    public MyRemoteFile[] getDirByNameAsc(String path) throws IOException {
+    public MyRemoteFile[] getDirByNameAsc(String path) throws IOException, InterruptedException {
         writeLine("getAscDir" + path);
         int count = Integer.parseInt(in.readLine());
         MyRemoteFile[] result = new MyRemoteFile[count];
@@ -92,7 +92,8 @@ public class MyHost {
 
     public int getLength(String path) throws IOException {
         writeLine("length" + path);
-        return Integer.parseInt(in.readLine());
+        String len = in.readLine();
+        return Integer.parseInt(len);
     }
 
     public void delete(String path) {
@@ -101,6 +102,7 @@ public class MyHost {
 
     public boolean isExist(String path) throws IOException {
         writeLine("exist" + path);
-        return "exist".equals(in.readLine());
+        String result = in.readLine();
+        return "exist".equals(result);
     }
 }

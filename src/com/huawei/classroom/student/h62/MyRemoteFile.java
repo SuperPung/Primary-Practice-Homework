@@ -10,15 +10,20 @@ public class MyRemoteFile {
     private final String path;
 
     public MyRemoteFile(MyHost host, String path) throws IOException {
-        host.login();
+        /**
+         * 这里不能直接login，因为不只调用这个类一次，不能每次都login
+         */
         if (!host.isValid()) {
-            throw new IOException("host login failed!");
+            host.login();
+            if (!host.isValid()) {
+                throw new IOException("host login failed!");
+            }
         }
         this.host = host;
         this.path = path;
     }
 
-    public MyRemoteFile[] dirByNameAsc() throws IOException {
+    public MyRemoteFile[] dirByNameAsc() throws IOException, InterruptedException {
         return host.getDirByNameAsc(path);
     }
 

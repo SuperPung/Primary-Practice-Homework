@@ -33,13 +33,14 @@ public class DaemonThread extends Thread {
             out = new PrintWriter(socket.getOutputStream());
             while (true) {
                 String line = in.readLine();
-                if (line == null) {
+                readLine(line);
+                if (1 == 0) {
                     break;
                 }
-                readLine(line);
             }
             in.close();
             out.close();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,7 +80,11 @@ public class DaemonThread extends Thread {
         List<File> resortFiles = sortFiles(files);
         writeLine(String.valueOf(resortFiles.size()));
         for (File resortFile : resortFiles) {
-            writeLine(resortFile.getAbsolutePath());
+            String path = filepath + resortFile.getName();
+            if (!resortFile.isFile()) {
+                path += "/";
+            }
+            writeLine(path);
         }
     }
 
@@ -109,7 +114,13 @@ public class DaemonThread extends Thread {
                 dirs.add(file);
             }
         }
-        for (int i = 0; i < dirs.size(); i++) {
+        /**
+         * it will be changed
+         */
+        int dirCount = dirs.size();
+        int fileCount = files.size();
+
+        for (int i = 0; i < dirCount; i++) {
             File dir = dirs.get(0);
             for (File file: dirs) {
                 if (dir.getAbsolutePath().compareTo(file.getAbsolutePath()) > 0) {
@@ -119,10 +130,10 @@ public class DaemonThread extends Thread {
             result.add(dir);
             dirs.remove(dir);
         }
-        for (int i = 0; i < files.size(); i++) {
+        for (int i = 0; i < fileCount; i++) {
             File file = files.get(0);
-            for (File file1: dirs) {
-                if (file.getAbsolutePath().compareTo(file1.getAbsolutePath()) > 0) {
+            for (File file1: files) {
+                if (file.getAbsolutePath().compareTo(file1.getAbsolutePath()) >= 0) {
                     file = file1;
                 }
             }
@@ -157,8 +168,10 @@ public class DaemonThread extends Thread {
 
     private void delete(String filepath) {
         File file = new File(root + filepath);
+        /**
+         * write must be read
+         */
         if (file.delete()) {
-            writeLine("delete" + filepath);
         }
     }
 
