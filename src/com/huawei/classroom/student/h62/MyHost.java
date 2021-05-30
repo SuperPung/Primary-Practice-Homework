@@ -1,10 +1,8 @@
 package com.huawei.classroom.student.h62;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * client
@@ -58,7 +56,10 @@ public class MyHost {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream());
         writeLine("login" + username + "\t" + password);
-        valid = "success\r\n".equals(in.readLine());
+        /**
+         * in.readLine() doesn't have "\r\n"
+         */
+        valid = "success".equals(in.readLine());
     }
 
     public MyRemoteFile[] getDirByNameAsc(String path) throws IOException {
@@ -84,14 +85,22 @@ public class MyHost {
     }
 
     public void writeByBytes(String path, byte[] bytes) {
+        String content = new String(bytes, StandardCharsets.UTF_8);
+        writeLine("write" + path + ":" + content);
+
     }
 
-    public int getLength(String path) {
+    public int getLength(String path) throws IOException {
+        writeLine("length" + path);
+        return Integer.parseInt(in.readLine());
     }
 
     public void delete(String path) {
+        writeLine("delete" + path);
     }
 
-    public boolean isExist(String path) {
+    public boolean isExist(String path) throws IOException {
+        writeLine("exist" + path);
+        return "exist".equals(in.readLine());
     }
 }

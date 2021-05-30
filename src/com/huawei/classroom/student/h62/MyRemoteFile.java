@@ -38,7 +38,7 @@ public class MyRemoteFile {
         host.writeByBytes(path, bytes);
     }
 
-    public int length() {
+    public int length() throws IOException {
         return host.getLength(path);
     }
 
@@ -46,7 +46,7 @@ public class MyRemoteFile {
         host.delete(path);
     }
 
-    public boolean exists() {
+    public boolean exists() throws IOException {
         return host.isExist(path);
     }
 }

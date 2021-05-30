@@ -17,7 +17,7 @@ public class Test {
 			// 根目录在什么地方
 			config.setRoot(remoteHome);
 			// 监听端口号
-			config.setPort(9999);
+			config.setPort(8424);
 			// 存放了用户名 口令 的认证数据文件
 			config.setPasswordFile("/Users/super/IdeaProjects/primaryPracticeHomeworks/src/com/huawei/classroom/student/h62/my_user.txt");
 			// 构造我的监听类

@@ -2,6 +2,7 @@ package com.huawei.classroom.student.h62;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,17 +12,15 @@ import java.util.List;
  * @author super
  */
 public class DaemonThread extends Thread {
-    private Socket socket;
+    private final Socket socket;
     private BufferedReader in;
     private PrintWriter out;
-    private String root;
-    private int port;
-    private List<String> users;
+    private final String root;
+    private final List<String> users;
 
     public DaemonThread(Socket socket, MyDeamonConfigVo config) {
         this.socket = socket;
         root = config.getRoot();
-        port = config.getPort();
         users = config.getUsers();
         in = null;
         out = null;
@@ -46,13 +45,21 @@ public class DaemonThread extends Thread {
         }
     }
 
-    private void readLine(String line) {
+    private void readLine(String line) throws IOException {
         if (line.startsWith("login")) {
             checkLogin(line.substring(5));
         } else if (line.startsWith("getAscDir")) {
             listFiles(line.substring(9));
         } else if (line.startsWith("type")) {
             getFileType(line.substring(4));
+        } else if (line.startsWith("write")) {
+            writeFile(line.substring(5));
+        } else if (line.startsWith("delete")) {
+            delete(line.substring(6));
+        } else if (line.startsWith("length")) {
+            getLength(line.substring(6));
+        } else if (line.startsWith("exist")) {
+            isExist(line.substring(5));
         }
     }
 
@@ -131,6 +138,45 @@ public class DaemonThread extends Thread {
             writeLine("file");
         } else {
             writeLine("dir");
+        }
+    }
+
+    private void writeFile(String pathAndContent) throws IOException {
+        String[] pathContent = pathAndContent.split(":");
+        String path = pathContent[0];
+        String content = pathContent[1];
+        File file = new File(root + path);
+        if (!file.exists()) {
+            if (file.createNewFile()) {
+                FileOutputStream outFileStream = new FileOutputStream(file);
+                outFileStream.write(content.getBytes(StandardCharsets.UTF_8));
+                outFileStream.flush();
+            }
+        }
+    }
+
+    private void delete(String filepath) {
+        File file = new File(root + filepath);
+        if (file.delete()) {
+            writeLine("delete" + filepath);
+        }
+    }
+
+    private void getLength(String filepath) {
+        File file = new File(root + filepath);
+        if (file.exists()) {
+            writeLine(String.valueOf(file.length()));
+        } else {
+            writeLine("0");
+        }
+    }
+
+    private void isExist(String filepath) {
+        File file = new File(root + filepath);
+        if (file.exists()) {
+            writeLine("exist");
+        } else {
+            writeLine("not exist");
         }
     }
 
