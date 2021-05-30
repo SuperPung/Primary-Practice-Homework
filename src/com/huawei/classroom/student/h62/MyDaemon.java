@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * server
  * @author super
  */
 public class MyDaemon extends Thread {

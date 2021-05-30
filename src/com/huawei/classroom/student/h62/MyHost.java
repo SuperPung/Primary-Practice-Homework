@@ -26,8 +26,8 @@ public class MyHost {
         valid = false;
     }
 
-    public boolean isValid() {
-        return valid;
+    public boolean isInvalid() {
+        return !valid;
     }
 
     private void writeLine(String line) {
@@ -87,7 +87,6 @@ public class MyHost {
     public void writeByBytes(String path, byte[] bytes) {
         String content = new String(bytes, StandardCharsets.UTF_8);
         writeLine("write" + path + ":" + content);
-
     }
 
     public int getLength(String path) throws IOException {

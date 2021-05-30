@@ -13,9 +13,9 @@ public class MyRemoteFile {
         /**
          * 这里不能直接login，因为不只调用这个类一次，不能每次都login
          */
-        if (!host.isValid()) {
+        if (host.isInvalid()) {
             host.login();
-            if (!host.isValid()) {
+            if (host.isInvalid()) {
                 throw new IOException("host login failed!");
             }
         }
